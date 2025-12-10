@@ -1,4 +1,6 @@
 using BlazorTasker;
+using BlazorTasker.Components;
+
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 

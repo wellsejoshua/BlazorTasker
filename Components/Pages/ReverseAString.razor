@@ -1,0 +1,32 @@
+﻿@page "/reverseastring"
+
+<PageTitle>Reverse A String</PageTitle>
+
+<h3>Reverse A String</h3>
+
+<div class="vstack gap-3 col-8 col-md-6">
+    <InputText class ="form-control" placeholder="Enter a string to Reverse" @bind-Value="message"></InputText>
+    <div class="text-end" @onclick="ReverseMe">
+        <div class="btn btn-primary">Reverse Me</div>
+        <hr/>
+        <div>@displayMessage</div>
+    </div>
+</div>
+
+@code {
+    private string message = "Reverse Me";
+    private string reversedMessage = "";
+    private string displayMessage = "";
+
+    private void ReverseMe()
+    {
+        reversedMessage = "";
+
+        for (int i = message.Length -1; i >= 0; i--)
+        {
+            reversedMessage += message[i];
+        }
+        displayMessage = $"The reverse of {message} is {reversedMessage}";
+    }
+
+}
