@@ -1,0 +1,25 @@
+﻿
+<div class="alert @CssClass border-1 border-dark">
+    <h4>@Title</h4>
+    <div>@DisplayMessage</div>
+</div>
+
+
+@code {
+    /// <summary>
+    /// The Message to display in the message box
+    /// </summary>
+    [Parameter, EditorRequired]
+    public string DisplayMessage { get; set; } = "";
+    /// <summary>
+    /// Title to display in message box
+    /// </summary>
+    [Parameter]
+    public string Title { get; set; } = "";
+    /// <summary>
+    /// Css classes to apply to the message box. Default alert-success. Use Boostrap alert colors 
+    /// </summary>
+    [Parameter]
+    public string CssClass { get; set; } = "alert-success";
+
+}
