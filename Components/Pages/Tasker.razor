@@ -1,4 +1,7 @@
 ﻿@page "/tasker"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@inject IJSRuntime JSRuntime;
 
 <div class="d-flex align-items-center justify-content-center">
     <div class="task p-5">
@@ -9,7 +12,7 @@
             <EditForm Model="ti" OnValidSubmit="addTask">
                 <DataAnnotationsValidator />
                 <div class="d-flex flex-row gap-2">
-                    <InputText class="form-control" placeholder="Enter a task" @bind-Value="ti.Name"></InputText>
+                    <InputText @ref=textBoxTask class="form-control" placeholder="Enter a task" @bind-Value="ti.Name"></InputText>
                     <button type="submit" class="btn btn-primary">Add</button>
                 </div>
                 <div>
@@ -21,7 +24,7 @@
         <div class="vstack">
             @foreach(var item in taskerItems)
             {
-                <TaskerLine Item="item"/>
+                <TaskerLine Item="item" OnDeleteCallback="@deleteTask" OnCompleteCallback="@updateTask"/>
 
             }
         </div>
@@ -30,11 +33,66 @@
 @code {
     private TaskerItem ti = new();
     private List<TaskerItem> taskerItems = new();
+    private InputText? textBoxTask { get; set; }
 
-    private void addTask()
+
+    protected override async Task OnInitializedAsync()
+    {
+        //load in the items from local storage
+        await LoadListAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await textBoxTask!.Element!.Value.FocusAsync();
+        }
+    }
+
+    private async void addTask()
     {
         ti.Id = Guid.NewGuid();
         taskerItems.Add(ti);
         ti = new();
+        await SaveListAsync();
+        await textBoxTask!.Element!.Value.FocusAsync();
+    }
+
+    private async void deleteTask(TaskerItem item)
+    {
+        taskerItems.Remove(item);
+        await SaveListAsync();
+        await textBoxTask!.Element!.Value.FocusAsync();
+    }
+
+    //method to save tasker item to local storage
+    private async Task SaveListAsync()
+    {
+        //converts data into a string that can be saved in local storage
+        string? taskerItemsJson = JsonSerializer.Serialize(taskerItems);
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "TaskerList", taskerItemsJson);
+    }
+
+    private async Task LoadListAsync()
+    {
+        try
+        {
+            string? taskerItemsJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "TaskerList") ?? "[]";
+            taskerItems = JsonSerializer.Deserialize<List<TaskerItem>>(taskerItemsJson)!;
+        }
+        catch (Exception e)
+        {
+
+            taskerItems = new();
+            await SaveListAsync();
+
+        }
+    }
+
+    private async void updateTask(TaskerItem item)
+    {
+        //save our item to local storage
+        await SaveListAsync();
     }
 }
